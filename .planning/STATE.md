@@ -11,7 +11,7 @@
 
 - Runtime source of truth is the project root
 - Local dev server is `python3 -m http.server 8081`
-- Local manifest URL is `http://localhost:8081/index.html`
+- Local manifest URL is `http://localhost:8081/index.html?v=0.2.0`
 - `package.json` is intentionally not used; Python static serving is sufficient
 - The Tableau SDK is vendored locally at `vendor/tableau.extensions.1.latest.min.js`
 - The renderer intentionally uses only the first summary data row
@@ -26,6 +26,7 @@
 - Minimal Excel test dataset added at `test-data/image-number-single-card.xls`
 - Tableau SDK vendored locally to avoid blocking CDN/network failures
 - Parser supports both `marksSpecifications`/`encodings` and legacy `marksSpecificationCollection`/`encodingCollection`
+- Local manifest version bumped to `0.2.0` with cache-busting query params so Tableau reloads current assets
 
 ## Open Verification Gates
 

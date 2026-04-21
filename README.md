@@ -12,7 +12,7 @@ Last verified: 2026-04-22
 - Minimal Excel test dataset exists at `test-data/image-number-single-card.xls`
 - Tableau Extensions API is vendored locally at `vendor/tableau.extensions.1.latest.min.js`
 - No `package.json` is required or included
-- Local manifest points to `http://localhost:8081/index.html`
+- Local manifest points to `http://localhost:8081/index.html?v=0.2.0`
 
 ## What The Extension Does
 
@@ -109,7 +109,7 @@ python3 -m http.server 8081
 The Tableau runtime URL is:
 
 ```text
-http://localhost:8081/index.html
+http://localhost:8081/index.html?v=0.2.0
 ```
 
 The local manifest already points to that URL:
@@ -231,7 +231,7 @@ Expected result:
 ### Tableau says the extension cannot load
 
 - Confirm the Python server is running from this repo.
-- Confirm the manifest URL is `http://localhost:8081/index.html`.
+- Confirm the manifest URL is `http://localhost:8081/index.html?v=0.2.0`.
 - Open `http://localhost:8081/index.html` in a browser to confirm the file is served.
 - If using a different port, update `img-num-ext-single-local.trex`.
 
