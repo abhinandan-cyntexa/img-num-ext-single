@@ -4,8 +4,8 @@
 
 - Phase: `1 / 2`
 - Active plan: `260421-001`
-- Status: Implemented and verified in Tableau Online
-- Last activity: 2026-04-22 - Added HTTPS local testing path, verified status UI/card rendering in Tableau Online, and cleaned fallback image rendering
+- Status: Implemented, verified in Tableau Online, and prepared for GitHub Pages hosting
+- Last activity: 2026-04-22 - Added GitHub Pages manifest and documentation for hosted HTTPS Tableau Online testing
 
 ## Decisions In Effect
 
@@ -15,6 +15,7 @@
 - Tableau Online dev server is `python3 serve_https.py`
 - Tableau Online manifest URL is `https://localhost:8443/index.html`
 - Tableau Online diagnostic manifest URL is `https://localhost:8443/debug.html`
+- GitHub Pages hosted manifest URL is `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html`
 - `package.json` is intentionally not used; Python static serving is sufficient
 - The Tableau SDK is vendored locally at `vendor/tableau.extensions.1.latest.js`
 - The renderer intentionally uses only the first summary data row
@@ -36,11 +37,15 @@
 - HTTPS diagnostic manifest added to verify source loading and `initializeAsync()` before card rendering
 - Tableau Online test flow verified by user: status UI and card render successfully
 - Broken-image fallback no longer shows the native browser broken-image square
+- GitHub repository created at `https://github.com/abhinandan-cyntexa/img-num-ext-single`
+- GitHub Pages manifest added for hosted HTTPS usage
 
 ## Open Verification Gates
 
 - Optional: repeat the same mapping test in Tableau Desktop with `img-num-ext-single-local.trex`
 - Optional: validate `SummaryDataChanged` refresh behavior after filter changes in Tableau Online
+- Verify GitHub Pages deployment returns `200 OK` after Pages finishes publishing
+- Load `img-num-ext-single-github-pages.trex` in Tableau Online
 
 ## Quick Tasks Completed
 
@@ -48,10 +53,11 @@
 |---|-------------|------|--------|-----------|
 | 260421-001 | Single-card architecture for image-plus-number Tableau test extension | 2026-04-21 | ddc5980 | [260421-001-single-card-architecture](./quick/260421-001-single-card-architecture/) |
 | runtime-fixes | HTTPS Tableau Online support, diagnostic manifest, vendored SDK, fallback cleanup | 2026-04-22 | 89b5374 | n/a |
+| github-pages | Hosted HTTPS manifest for GitHub Pages | 2026-04-22 | pending | n/a |
 
 ## Next Step
 
-Use the README test checklist for regression testing. For Tableau Online, run `python3 serve_https.py`, verify `img-num-ext-single-debug-https-local.trex`, then load `img-num-ext-single-https-local.trex`.
+Enable GitHub Pages from the `main` branch root, then load `img-num-ext-single-github-pages.trex` in Tableau Online.
 
 ---
-*Last updated: 2026-04-22 after Tableau Online verification*
+*Last updated: 2026-04-22 after GitHub Pages manifest setup*

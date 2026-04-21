@@ -17,6 +17,7 @@ Last verified: 2026-04-22
 - No `package.json` is required or included
 - Tableau Desktop HTTP manifest points to `http://localhost:8081/index.html`
 - Tableau Online HTTPS manifest points to `https://localhost:8443/index.html`
+- GitHub Pages manifest points to `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html`
 
 ## What The Extension Does
 
@@ -39,6 +40,7 @@ Last verified: 2026-04-22
 | `img-num-ext-single-local.trex` | Local HTTP Tableau Desktop manifest |
 | `img-num-ext-single-https-local.trex` | Local HTTPS Tableau Online manifest |
 | `img-num-ext-single-debug-https-local.trex` | HTTPS diagnostic manifest for isolating load issues |
+| `img-num-ext-single-github-pages.trex` | GitHub Pages manifest for a hosted HTTPS extension URL |
 | `debug.html` | Minimal Tableau SDK handshake page with no card-rendering logic |
 | `serve_https.py` | Python HTTPS static server with no-cache headers |
 | `test-data/image-number-single-card.xls` | Minimal Tableau test workbook |
@@ -106,6 +108,24 @@ Runtime flow:
   - one numeric measure
 
 No npm setup is needed for this project. The Tableau SDK is served locally from `vendor/`, so the extension does not depend on Tableau's CDN while testing.
+
+## GitHub Pages Hosted URL
+
+The repository is published to GitHub Pages from the `main` branch root.
+
+Hosted extension URL:
+
+```text
+https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html
+```
+
+Use this manifest when Tableau needs a hosted HTTPS URL instead of local `localhost` testing:
+
+```text
+img-num-ext-single-github-pages.trex
+```
+
+The GitHub Pages manifest is useful for Tableau Online because it avoids localhost certificate prompts and browser mixed-content blocking.
 
 ## Run Locally For Tableau Desktop
 
@@ -312,6 +332,7 @@ Mapping rows:
 - [ ] Tableau connects to `test-data/image-number-single-card.xls`
 - [ ] `img-num-ext-single-local.trex` loads in Tableau Desktop
 - [ ] `img-num-ext-single-https-local.trex` loads in Tableau Online
+- [ ] `img-num-ext-single-github-pages.trex` loads in Tableau Online from GitHub Pages
 - [ ] Marks card shows `Image URL` and `Value`
 - [ ] Missing `Image URL` mapping shows `Needs mapping`
 - [ ] Missing `Value` mapping shows `Needs mapping`
@@ -332,12 +353,14 @@ node --check chart.js
 xmllint --noout img-num-ext-single-local.trex
 xmllint --noout img-num-ext-single-https-local.trex
 xmllint --noout img-num-ext-single-debug-https-local.trex
+xmllint --noout img-num-ext-single-github-pages.trex
 file test-data/image-number-single-card.xls
 curl -I http://localhost:8081/vendor/tableau.extensions.1.latest.js
 curl -I http://localhost:8081/index.html
 curl -k -I https://localhost:8443/vendor/tableau.extensions.1.latest.js
 curl -k -I https://localhost:8443/index.html
 curl -k -I https://localhost:8443/debug.html
+curl -I https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html
 ```
 
 Expected result:
@@ -376,6 +399,14 @@ img-num-ext-single-https-local.trex
 ```
 
 The `prod.telemetry.tableausoftware.com` CORS errors in the browser console are Tableau telemetry calls and are not the reason this extension is blank.
+
+### GitHub Pages URL does not load
+
+- Confirm GitHub Pages is enabled for the repository.
+- Confirm the Pages source is the `main` branch root.
+- Open `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html` in the same browser.
+- Run `curl -I https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html` and confirm `200 OK`.
+- Confirm Tableau is using `img-num-ext-single-github-pages.trex`, not a local manifest.
 
 ### Tableau Online says Could not connect to the server
 

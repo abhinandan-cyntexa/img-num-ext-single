@@ -26,6 +26,7 @@ The extension must reliably show the image URL and numeric value from the first 
 - [x] HTTP `.trex` manifest points to `http://localhost:8081/index.html` for Tableau Desktop
 - [x] HTTPS `.trex` manifest points to `https://localhost:8443/index.html` for Tableau Online
 - [x] HTTPS diagnostic `.trex` verifies source loading and Tableau SDK initialization before testing card code
+- [x] GitHub Pages `.trex` points to `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html` for hosted HTTPS testing
 
 ### Out of Scope
 
@@ -50,6 +51,7 @@ The extension must reliably show the image URL and numeric value from the first 
 - Tableau Extensions API loaded locally from `vendor/tableau.extensions.1.latest.js`
 - Tableau Desktop local development uses `python3 -m http.server 8081`
 - Tableau Online local development uses `python3 serve_https.py` on `https://localhost:8443`
+- Hosted Tableau Online testing uses GitHub Pages at `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html`
 - No `package.json` or `npm start` workflow is required for this project
 - Tableau light-theme styling: white surface, subtle border/shadow, neutral typography
 
@@ -62,6 +64,7 @@ The extension must reliably show the image URL and numeric value from the first 
 | Use DOM/CSS rendering | Avoids dependencies and keeps Tableau debugging simple | Locked |
 | Keep HTTP and HTTPS manifests | Tableau Desktop can use HTTP; Tableau Online requires HTTPS to avoid mixed-content blocking | Locked |
 | Keep a diagnostic HTTPS manifest | Separates source/SDK loading failures from `chart.js` rendering bugs | Locked |
+| Add a GitHub Pages manifest | Gives Tableau Online a stable hosted HTTPS URL without localhost certificate prompts | Locked |
 
 ---
-*Last updated: 2026-04-22 after Tableau Online verification*
+*Last updated: 2026-04-22 after GitHub Pages manifest setup*
