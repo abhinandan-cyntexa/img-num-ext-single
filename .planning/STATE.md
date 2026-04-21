@@ -11,9 +11,9 @@
 
 - Runtime source of truth is the project root
 - Local dev server is `python3 -m http.server 8081`
-- Local manifest URL is `http://localhost:8081/index.html?v=0.2.0`
+- Local manifest URL is `http://localhost:8081/index.html`
 - `package.json` is intentionally not used; Python static serving is sufficient
-- The Tableau SDK is vendored locally at `vendor/tableau.extensions.1.latest.min.js`
+- The Tableau SDK is vendored locally at `vendor/tableau.extensions.1.latest.js`
 - The renderer intentionally uses only the first summary data row
 - Multi-card grid behavior is out of scope for this test project
 
@@ -26,7 +26,8 @@
 - Minimal Excel test dataset added at `test-data/image-number-single-card.xls`
 - Tableau SDK vendored locally to avoid blocking CDN/network failures
 - Parser supports both `marksSpecifications`/`encodings` and legacy `marksSpecificationCollection`/`encodingCollection`
-- Local manifest version bumped to `0.2.0` with cache-busting query params so Tableau reloads current assets
+- Local manifest version bumped to `0.3.0`
+- Runtime structure aligned with the working heatmap reference: local SDK in `<head>`, plain source URL, and in-flow status panel
 
 ## Open Verification Gates
 

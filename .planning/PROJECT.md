@@ -43,7 +43,7 @@ The extension must reliably show the image URL and numeric value from the first 
 ## Constraints
 
 - Plain HTML/CSS/JS only
-- Tableau Extensions API loaded locally from `vendor/tableau.extensions.1.latest.min.js`
+- Tableau Extensions API loaded locally from `vendor/tableau.extensions.1.latest.js`
 - Local development uses `python3 -m http.server 8081`
 - No `package.json` or `npm start` workflow is required for this project
 - Tableau light-theme styling: white surface, subtle border/shadow, neutral typography

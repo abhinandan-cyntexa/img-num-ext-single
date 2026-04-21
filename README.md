@@ -10,9 +10,9 @@ Last verified: 2026-04-22
 - Local manifest XML validates with `xmllint --noout img-num-ext-single-local.trex`
 - Python static server returns `200 OK` for `index.html`
 - Minimal Excel test dataset exists at `test-data/image-number-single-card.xls`
-- Tableau Extensions API is vendored locally at `vendor/tableau.extensions.1.latest.min.js`
+- Tableau Extensions API is vendored locally at `vendor/tableau.extensions.1.latest.js`
 - No `package.json` is required or included
-- Local manifest points to `http://localhost:8081/index.html?v=0.2.0`
+- Local manifest points to `http://localhost:8081/index.html`
 
 ## What The Extension Does
 
@@ -34,7 +34,7 @@ Last verified: 2026-04-22
 | `chart.js` | Tableau initialization, mapping diagnostics, data parsing, rendering |
 | `img-num-ext-single-local.trex` | Local Tableau Viz Extension manifest |
 | `test-data/image-number-single-card.xls` | Minimal Tableau test workbook |
-| `vendor/tableau.extensions.1.latest.min.js` | Local Tableau Extensions API SDK |
+| `vendor/tableau.extensions.1.latest.js` | Local Tableau Extensions API SDK |
 | `.planning/` | GSD planning and state artifacts |
 
 ## Test Dataset
@@ -109,7 +109,7 @@ python3 -m http.server 8081
 The Tableau runtime URL is:
 
 ```text
-http://localhost:8081/index.html?v=0.2.0
+http://localhost:8081/index.html
 ```
 
 The local manifest already points to that URL:
@@ -208,7 +208,7 @@ Run these from the repo root:
 node --check chart.js
 xmllint --noout img-num-ext-single-local.trex
 file test-data/image-number-single-card.xls
-curl -I http://localhost:8081/vendor/tableau.extensions.1.latest.min.js
+curl -I http://localhost:8081/vendor/tableau.extensions.1.latest.js
 curl -I http://localhost:8081/index.html
 ```
 
@@ -223,7 +223,7 @@ Expected result:
 
 ### The page is blank in Tableau
 
-- Confirm `http://localhost:8081/vendor/tableau.extensions.1.latest.min.js` returns `200 OK`.
+- Confirm `http://localhost:8081/vendor/tableau.extensions.1.latest.js` returns `200 OK`.
 - Reload the extension in Tableau after restarting the Python server.
 - Confirm `img-num-ext-single-local.trex` points to `http://localhost:8081/index.html`.
 - The extension no longer depends on Tableau's CDN; if the status panel is still missing, Tableau is likely not loading this repo's `index.html`.
@@ -231,7 +231,7 @@ Expected result:
 ### Tableau says the extension cannot load
 
 - Confirm the Python server is running from this repo.
-- Confirm the manifest URL is `http://localhost:8081/index.html?v=0.2.0`.
+- Confirm the manifest URL is `http://localhost:8081/index.html`.
 - Open `http://localhost:8081/index.html` in a browser to confirm the file is served.
 - If using a different port, update `img-num-ext-single-local.trex`.
 

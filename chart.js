@@ -239,7 +239,7 @@ function findColumnIndex(columns, field) {
     ].map(normalizeToken).filter(Boolean);
 
     if (fieldTokens.some(token => columnTokens.includes(token))) {
-      return Number.isInteger(column?.index) ? column.index : columnPosition;
+      return columnPosition;
     }
   }
 
