@@ -7,12 +7,13 @@ This repo contains a focused Tableau Viz Extension that renders exactly one imag
 Last verified: 2026-04-22
 
 - Runtime JavaScript parses successfully with `node --check chart.js`
-- Local manifest XML validates with `xmllint --noout img-num-ext-single-local.trex`
-- Python static server returns `200 OK` for `index.html`
+- Local manifest XML files validate with `xmllint --noout`
+- Python HTTP and HTTPS static servers return `200 OK` for `index.html`
 - Minimal Excel test dataset exists at `test-data/image-number-single-card.xls`
 - Tableau Extensions API is vendored locally at `vendor/tableau.extensions.1.latest.js`
 - No `package.json` is required or included
-- Local manifest points to `http://localhost:8081/index.html`
+- Tableau Desktop HTTP manifest points to `http://localhost:8081/index.html`
+- Tableau Online HTTPS manifest points to `https://localhost:8443/index.html`
 
 ## What The Extension Does
 
@@ -32,7 +33,11 @@ Last verified: 2026-04-22
 | `index.html` | Main Tableau runtime page loaded by the `.trex` manifest |
 | `styles.css` | Card layout, image fallback, status panel, and responsive styles |
 | `chart.js` | Tableau initialization, mapping diagnostics, data parsing, rendering |
-| `img-num-ext-single-local.trex` | Local Tableau Viz Extension manifest |
+| `img-num-ext-single-local.trex` | Local HTTP Tableau Desktop manifest |
+| `img-num-ext-single-https-local.trex` | Local HTTPS Tableau Online manifest |
+| `img-num-ext-single-debug-https-local.trex` | HTTPS diagnostic manifest for isolating load issues |
+| `debug.html` | Minimal Tableau SDK handshake page with no card-rendering logic |
+| `serve_https.py` | Python HTTPS static server with no-cache headers |
 | `test-data/image-number-single-card.xls` | Minimal Tableau test workbook |
 | `vendor/tableau.extensions.1.latest.js` | Local Tableau Extensions API SDK |
 | `.planning/` | GSD planning and state artifacts |
@@ -97,7 +102,7 @@ Runtime flow:
 
 No npm setup is needed for this project. The Tableau SDK is served locally from `vendor/`, so the extension does not depend on Tableau's CDN while testing.
 
-## Run Locally
+## Run Locally For Tableau Desktop
 
 From this repo:
 
@@ -119,6 +124,58 @@ img-num-ext-single-local.trex
 ```
 
 If port `8081` is not available, either stop the process using that port or update the `.trex` `<source-location>` URL to the port you choose.
+
+## Run Locally For Tableau Online
+
+Tableau Online is served over HTTPS, so the browser blocks any extension URL that starts with `http://`. If you see this warning, use the HTTPS path below:
+
+```text
+[blocked] The page at https://...online.tableau.com requested insecure content from http://localhost:8081/index.html
+```
+
+Create local certificate files:
+
+```bash
+mkdir -p certs
+mkcert -cert-file certs/localhost.pem -key-file certs/localhost-key.pem localhost 127.0.0.1 ::1
+```
+
+If `mkcert` is not installed, this OpenSSL fallback creates a self-signed certificate:
+
+```bash
+mkdir -p certs
+openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+  -keyout certs/localhost-key.pem \
+  -out certs/localhost.pem \
+  -subj "/CN=localhost" \
+  -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+```
+
+Start the HTTPS server:
+
+```bash
+python3 serve_https.py
+```
+
+Open this URL directly in the same browser once:
+
+```text
+https://localhost:8443/index.html
+```
+
+If the browser shows a certificate warning, accept it before loading the extension in Tableau Online. Then add this manifest in Tableau Online:
+
+```text
+img-num-ext-single-https-local.trex
+```
+
+For source-load debugging, add this static diagnostic manifest first:
+
+```text
+img-num-ext-single-debug-https-local.trex
+```
+
+If the debug manifest does not show `Debug page loaded`, Tableau Online is still not reaching the local HTTPS server. If it shows `Debug page loaded` but says the Tableau SDK failed, the HTTPS source is reachable and the failure is in the Tableau handshake. Do not debug `chart.js` until this diagnostic page loads and initializes.
 
 ## Tableau Desktop Test
 
@@ -188,8 +245,13 @@ Mapping rows:
 
 - [ ] `python3 -m http.server 8081` starts without errors
 - [ ] `http://localhost:8081/index.html` is reachable
+- [ ] For Tableau Online, `python3 serve_https.py` starts without errors
+- [ ] For Tableau Online, `https://localhost:8443/index.html` is reachable in the same browser
+- [ ] For Tableau Online, `img-num-ext-single-debug-https-local.trex` shows `Debug page loaded`
+- [ ] For Tableau Online, the debug page shows `Tableau initializeAsync completed`
 - [ ] Tableau connects to `test-data/image-number-single-card.xls`
 - [ ] `img-num-ext-single-local.trex` loads in Tableau Desktop
+- [ ] `img-num-ext-single-https-local.trex` loads in Tableau Online
 - [ ] Marks card shows `Image URL` and `Value`
 - [ ] Missing `Image URL` mapping shows `Needs mapping`
 - [ ] Missing `Value` mapping shows `Needs mapping`
@@ -207,9 +269,14 @@ Run these from the repo root:
 ```bash
 node --check chart.js
 xmllint --noout img-num-ext-single-local.trex
+xmllint --noout img-num-ext-single-https-local.trex
+xmllint --noout img-num-ext-single-debug-https-local.trex
 file test-data/image-number-single-card.xls
 curl -I http://localhost:8081/vendor/tableau.extensions.1.latest.js
 curl -I http://localhost:8081/index.html
+curl -k -I https://localhost:8443/vendor/tableau.extensions.1.latest.js
+curl -k -I https://localhost:8443/index.html
+curl -k -I https://localhost:8443/debug.html
 ```
 
 Expected result:
@@ -217,16 +284,37 @@ Expected result:
 - `node --check` prints no syntax errors
 - `xmllint` prints no XML errors
 - `file` reports `CDFV2 Microsoft Excel`
-- both `curl` commands return `HTTP/1.0 200 OK` or another `200 OK` response
+- all `curl` commands return `HTTP/1.0 200 OK` or another `200 OK` response
 
 ## Troubleshooting
 
 ### The page is blank in Tableau
 
+- If using Tableau Online, do not use `img-num-ext-single-local.trex`; it points to insecure HTTP and will be blocked.
+- Use `python3 serve_https.py` and `img-num-ext-single-https-local.trex` for Tableau Online.
+- Test `img-num-ext-single-debug-https-local.trex` first. If the static debug page is blank, the issue is the HTTPS local-server path, not the extension runtime.
 - Confirm `http://localhost:8081/vendor/tableau.extensions.1.latest.js` returns `200 OK`.
 - Reload the extension in Tableau after restarting the Python server.
 - Confirm `img-num-ext-single-local.trex` points to `http://localhost:8081/index.html`.
 - The extension no longer depends on Tableau's CDN; if the status panel is still missing, Tableau is likely not loading this repo's `index.html`.
+
+### Tableau Online blocks localhost
+
+Tableau Online runs under `https://...online.tableau.com`. Browsers block an HTTPS page from loading `http://localhost:8081/index.html` inside an iframe. That is mixed content blocking, and no JavaScript change in this repo can bypass it.
+
+Use:
+
+```text
+https://localhost:8443/index.html
+```
+
+with:
+
+```text
+img-num-ext-single-https-local.trex
+```
+
+The `prod.telemetry.tableausoftware.com` CORS errors in the browser console are Tableau telemetry calls and are not the reason this extension is blank.
 
 ### Tableau says the extension cannot load
 
