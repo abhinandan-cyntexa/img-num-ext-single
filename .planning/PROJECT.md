@@ -12,7 +12,7 @@ The extension must reliably show the image URL and numeric value from the first 
 
 ### Active
 
-- [ ] Extension initializes through Tableau Extensions API v2
+- [ ] Extension initializes through Tableau Extensions API
 - [ ] Worksheet visual specification is read to resolve `Image URL` and `Value` encodings
 - [ ] Worksheet summary data is loaded through `getSummaryDataReaderAsync()`
 - [ ] Only the first valid row is rendered as one card
@@ -43,7 +43,7 @@ The extension must reliably show the image URL and numeric value from the first 
 ## Constraints
 
 - Plain HTML/CSS/JS only
-- Tableau Extensions API v2 loaded from `https://extensions.tableau.com/lib/tableau.extensions.2.latest.js`
+- Tableau Extensions API loaded locally from `vendor/tableau.extensions.1.latest.min.js`
 - Local development uses `python3 -m http.server 8081`
 - No `package.json` or `npm start` workflow is required for this project
 - Tableau light-theme styling: white surface, subtle border/shadow, neutral typography

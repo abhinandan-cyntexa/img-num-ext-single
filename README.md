@@ -4,12 +4,13 @@ This repo contains a focused Tableau Viz Extension that renders exactly one imag
 
 ## Current Status
 
-Last verified: 2026-04-21
+Last verified: 2026-04-22
 
 - Runtime JavaScript parses successfully with `node --check chart.js`
 - Local manifest XML validates with `xmllint --noout img-num-ext-single-local.trex`
 - Python static server returns `200 OK` for `index.html`
 - Minimal Excel test dataset exists at `test-data/image-number-single-card.xls`
+- Tableau Extensions API is vendored locally at `vendor/tableau.extensions.1.latest.min.js`
 - No `package.json` is required or included
 - Local manifest points to `http://localhost:8081/index.html`
 
@@ -33,6 +34,7 @@ Last verified: 2026-04-21
 | `chart.js` | Tableau initialization, mapping diagnostics, data parsing, rendering |
 | `img-num-ext-single-local.trex` | Local Tableau Viz Extension manifest |
 | `test-data/image-number-single-card.xls` | Minimal Tableau test workbook |
+| `vendor/tableau.extensions.1.latest.min.js` | Local Tableau Extensions API SDK |
 | `.planning/` | GSD planning and state artifacts |
 
 ## Test Dataset
@@ -79,10 +81,11 @@ Runtime flow:
 1. `tableau.extensions.initializeAsync()` connects to Tableau.
 2. `worksheet.getVisualSpecificationAsync()` reads the mapped encoding fields.
 3. `worksheet.getSummaryDataReaderAsync()` loads summary data.
-4. `chart.js` checks whether required fields are mapped and present in summary data.
-5. The first row is parsed into `{ imageUrl, value }`.
-6. The card renders the image and formatted number.
-7. `SummaryDataChanged` triggers the same flow again.
+4. `chart.js` supports both current Tableau visual-spec fields (`marksSpecifications`) and older sample-style fields (`marksSpecificationCollection`).
+5. `chart.js` checks whether required fields are mapped and present in summary data.
+6. The first row is parsed into `{ imageUrl, value }`.
+7. The card renders the image and formatted number.
+8. `SummaryDataChanged` triggers the same flow again.
 
 ## Prerequisites
 
@@ -92,7 +95,7 @@ Runtime flow:
   - one field containing image URLs
   - one numeric measure
 
-No npm setup is needed for this project.
+No npm setup is needed for this project. The Tableau SDK is served locally from `vendor/`, so the extension does not depend on Tableau's CDN while testing.
 
 ## Run Locally
 
@@ -205,6 +208,7 @@ Run these from the repo root:
 node --check chart.js
 xmllint --noout img-num-ext-single-local.trex
 file test-data/image-number-single-card.xls
+curl -I http://localhost:8081/vendor/tableau.extensions.1.latest.min.js
 curl -I http://localhost:8081/index.html
 ```
 
@@ -213,9 +217,16 @@ Expected result:
 - `node --check` prints no syntax errors
 - `xmllint` prints no XML errors
 - `file` reports `CDFV2 Microsoft Excel`
-- `curl` returns `HTTP/1.0 200 OK` or another `200 OK` response
+- both `curl` commands return `HTTP/1.0 200 OK` or another `200 OK` response
 
 ## Troubleshooting
+
+### The page is blank in Tableau
+
+- Confirm `http://localhost:8081/vendor/tableau.extensions.1.latest.min.js` returns `200 OK`.
+- Reload the extension in Tableau after restarting the Python server.
+- Confirm `img-num-ext-single-local.trex` points to `http://localhost:8081/index.html`.
+- The extension no longer depends on Tableau's CDN; if the status panel is still missing, Tableau is likely not loading this repo's `index.html`.
 
 ### Tableau says the extension cannot load
 
