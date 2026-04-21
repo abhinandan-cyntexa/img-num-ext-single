@@ -20,6 +20,7 @@ The extension must reliably show the image URL and numeric value from the first 
 - [ ] Number comes from a Tableau measure field mapped to the value encoding
 - [ ] Numbers are formatted with comma separators
 - [ ] Missing or broken image URLs show a neutral placeholder
+- [ ] UI status indicator shows current extension state and mapping diagnostics
 - [ ] Summary data changes trigger a re-render
 - [ ] Local `.trex` manifest points to `http://localhost:8081/index.html`
 
@@ -44,6 +45,7 @@ The extension must reliably show the image URL and numeric value from the first 
 - Plain HTML/CSS/JS only
 - Tableau Extensions API v2 loaded from `https://extensions.tableau.com/lib/tableau.extensions.2.latest.js`
 - Local development uses `python3 -m http.server 8081`
+- No `package.json` or `npm start` workflow is required for this project
 - Tableau light-theme styling: white surface, subtle border/shadow, neutral typography
 
 ## Key Decisions

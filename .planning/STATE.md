@@ -5,13 +5,14 @@
 - Phase: `1 / 2`
 - Active plan: `260421-001`
 - Status: Implemented, pending Tableau Desktop verification
-- Last activity: 2026-04-21 - Completed quick task 260421-001: single-card architecture scaffolded from the image-plus-number grid reference
+- Last activity: 2026-04-21 - Added UI status and mapping diagnostics; npm workflow intentionally skipped because Python server works
 
 ## Decisions In Effect
 
 - Runtime source of truth is the project root
 - Local dev server is `python3 -m http.server 8081`
 - Local manifest URL is `http://localhost:8081/index.html`
+- `package.json` is intentionally not used; Python static serving is sufficient
 - The Tableau SDK is loaded from Tableau's CDN
 - The renderer intentionally uses only the first summary data row
 - Multi-card grid behavior is out of scope for this test project
@@ -21,6 +22,7 @@
 - Project planning artifacts created
 - Single-card architecture plan created
 - Static extension shell, renderer, mock test page, README, and local manifest implemented
+- UI status indicator added for extension state, missing mappings, missing summary fields, no-data state, ready state, and image fallback
 
 ## Open Verification Gates
 

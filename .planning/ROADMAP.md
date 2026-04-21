@@ -22,6 +22,7 @@ This project ships a minimal Tableau worksheet extension that renders one image-
 3. Browser mock test renders one card without Tableau
 4. The runtime listens for `SummaryDataChanged`
 5. The renderer uses only the first Tableau summary data row
+6. The UI shows current status and field mapping diagnostics
 
 Plans:
 

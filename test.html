@@ -8,6 +8,23 @@
 </head>
 <body>
   <main class="extension-root" aria-live="polite">
+    <aside class="status-panel" id="statusPanel" data-status="loading" aria-live="polite">
+      <div class="status-heading">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="statusLabel">Initializing</span>
+      </div>
+      <div class="status-detail" id="statusDetail">Connecting to Tableau...</div>
+      <dl class="mapping-list">
+        <div>
+          <dt>Image URL</dt>
+          <dd id="imageMapping">Not mapped</dd>
+        </div>
+        <div>
+          <dt>Value</dt>
+          <dd id="valueMapping">Not mapped</dd>
+        </div>
+      </dl>
+    </aside>
     <section class="single-card" aria-label="Image and number card">
       <div class="image-frame" id="imageFrame">
         <img id="cardImage" class="card-image" alt="" hidden>

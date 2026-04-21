@@ -29,3 +29,16 @@ Load the local manifest in Tableau Desktop through the worksheet Marks card, the
 - `Value` - a numeric measure
 
 The renderer intentionally uses only the first summary data row. If Tableau returns multiple rows, this extension still renders exactly one card.
+
+## Status Indicator
+
+The top-left status panel shows the current extension state and field mappings:
+
+- `Initializing` / `Loading worksheet`
+- `Needs mapping`
+- `No data`
+- `Ready`
+- `Image fallback`
+- `Error`
+
+It also shows whether `Image URL` and `Value` are mapped, not mapped, or missing from Tableau summary data.

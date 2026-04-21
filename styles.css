@@ -24,6 +24,88 @@ body {
   padding: clamp(18px, 5vw, 56px);
 }
 
+.status-panel {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  width: min(310px, calc(100vw - 24px));
+  padding: 10px 12px;
+  border: 1px solid #dedede;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 7px 20px rgba(31, 45, 61, 0.08);
+  color: #333;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.status-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #8a8f98;
+}
+
+.status-panel[data-status="loading"] .status-dot {
+  background: #4e79a7;
+}
+
+.status-panel[data-status="ready"] .status-dot {
+  background: #2f8f5b;
+}
+
+.status-panel[data-status="warning"] .status-dot {
+  background: #c7872f;
+}
+
+.status-panel[data-status="error"] .status-dot {
+  background: #b93a3a;
+}
+
+.status-detail {
+  margin-top: 4px;
+  color: #666;
+}
+
+.mapping-list {
+  display: grid;
+  gap: 5px;
+  margin: 9px 0 0;
+}
+
+.mapping-list div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.mapping-list dt {
+  color: #777;
+  font-weight: 500;
+}
+
+.mapping-list dd {
+  min-width: 0;
+  margin: 0;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapping-list dd.is-missing {
+  color: #a54817;
+}
+
 .single-card {
   display: flex;
   width: min(630px, calc(100vw - 40px));
@@ -107,7 +189,12 @@ body {
 
 @media (max-width: 520px) {
   .extension-root {
-    padding: 16px;
+    align-items: flex-end;
+    padding: 116px 16px 16px;
+  }
+
+  .status-panel {
+    right: 12px;
   }
 
   .single-card {

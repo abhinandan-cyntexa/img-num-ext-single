@@ -5,11 +5,16 @@ const ENCODING_VALUE = 'value';
 
 let activeWorksheet = null;
 
+setStatus({
+  state: 'loading',
+  label: 'Initializing',
+  detail: 'Connecting to Tableau...',
+});
 bootstrap();
 
 function bootstrap() {
   if (!window.tableau?.extensions?.initializeAsync) {
-    renderEmptyState('Tableau Extensions API is unavailable.');
+    renderEmptyState('Tableau Extensions API is unavailable.', 'error', 'API unavailable');
     return;
   }
 
@@ -21,12 +26,17 @@ function bootstrap() {
     );
     render(activeWorksheet);
   }).catch(err => {
-    renderEmptyState(messageFromError(err));
+    renderEmptyState(messageFromError(err), 'error', 'Initialization failed');
   });
 }
 
 async function render(worksheet) {
   clearError();
+  setStatus({
+    state: 'loading',
+    label: 'Loading worksheet',
+    detail: 'Reading mapped fields and summary data...',
+  });
 
   try {
     const [vizSpec, dataTable] = await Promise.all([
@@ -34,10 +44,34 @@ async function render(worksheet) {
       fetchSummaryData(worksheet),
     ]);
 
-    const cardData = parseSingleCard(dataTable, vizSpec);
-    renderCard(cardData);
+    const diagnostics = getMappingDiagnostics(vizSpec, dataTable);
+
+    if (diagnostics.issues.length) {
+      renderEmptyCard();
+      setStatus({
+        state: 'warning',
+        label: 'Needs mapping',
+        detail: diagnostics.issues.join(' '),
+        diagnostics,
+      });
+      return;
+    }
+
+    if (!dataTable.data.length) {
+      renderEmptyCard();
+      setStatus({
+        state: 'warning',
+        label: 'No data',
+        detail: 'The mapped fields are valid, but Tableau returned no summary rows.',
+        diagnostics,
+      });
+      return;
+    }
+
+    const cardData = parseSingleCard(dataTable, diagnostics);
+    renderCard(cardData, diagnostics, dataTable.data.length);
   } catch (err) {
-    renderEmptyState(messageFromError(err));
+    renderEmptyState(messageFromError(err), 'error', 'Error');
   }
 }
 
@@ -53,7 +87,7 @@ async function fetchSummaryData(worksheet) {
   }
 }
 
-function parseSingleCard(dataTable, vizSpec) {
+function getMappingDiagnostics(vizSpec, dataTable) {
   const marksSpec = vizSpec?.marksSpecificationCollection?.[0];
   if (!marksSpec) {
     throw new Error('No marks specification found.');
@@ -61,42 +95,49 @@ function parseSingleCard(dataTable, vizSpec) {
 
   const imageField = getEncodingFieldName(marksSpec, ENCODING_IMAGE);
   const valueField = getEncodingFieldName(marksSpec, ENCODING_VALUE);
+  const columnIndex = Object.fromEntries(
+    (dataTable.columns ?? []).map(column => [column.fieldName, column.index])
+  );
+
+  const diagnostics = {
+    imageField,
+    valueField,
+    imageState: imageField ? 'mapped' : 'missing',
+    valueState: valueField ? 'mapped' : 'missing',
+    imageIndex: imageField ? columnIndex[imageField] : null,
+    valueIndex: valueField ? columnIndex[valueField] : null,
+    issues: [],
+  };
 
   if (!imageField) {
-    throw new Error('Map a field to the Image URL encoding.');
+    diagnostics.issues.push('Image URL is not mapped.');
+  } else if (!(imageField in columnIndex)) {
+    diagnostics.imageState = 'missing-column';
+    diagnostics.issues.push(`Image URL is mapped to "${imageField}", but that field is not in summary data.`);
   }
 
   if (!valueField) {
-    throw new Error('Map a numeric field to the Value encoding.');
+    diagnostics.issues.push('Value is not mapped.');
+  } else if (!(valueField in columnIndex)) {
+    diagnostics.valueState = 'missing-column';
+    diagnostics.issues.push(`Value is mapped to "${valueField}", but that field is not in summary data.`);
   }
 
-  const columnIndex = Object.fromEntries(
-    dataTable.columns.map(column => [column.fieldName, column.index])
-  );
+  return diagnostics;
+}
 
-  if (!(imageField in columnIndex)) {
-    throw new Error(`Image URL field "${imageField}" was not found in summary data.`);
-  }
-
-  if (!(valueField in columnIndex)) {
-    throw new Error(`Value field "${valueField}" was not found in summary data.`);
-  }
-
-  if (!dataTable.data.length) {
-    throw new Error('No summary data rows found.');
-  }
-
+function parseSingleCard(dataTable, diagnostics) {
   const firstRow = dataTable.data[0];
-  const imageCell = firstRow[columnIndex[imageField]];
-  const valueCell = firstRow[columnIndex[valueField]];
-  const numericValue = toNumber(cellRawValue(valueCell));
+  const imageCell = firstRow[diagnostics.imageIndex];
+  const valueCell = firstRow[diagnostics.valueIndex];
+  const numericValue = toNumber(cellRawValue(valueCell) ?? cellDisplayValue(valueCell));
 
   if (numericValue === null) {
-    throw new Error(`Value field "${valueField}" did not contain a numeric value.`);
+    throw new Error(`Value field "${diagnostics.valueField}" did not contain a numeric value.`);
   }
 
   return {
-    imageUrl: normalizeImageUrl(cellDisplayValue(imageCell)),
+    imageUrl: normalizeImageUrl(cellRawValue(imageCell) ?? cellDisplayValue(imageCell)),
     value: numericValue,
   };
 }
@@ -106,41 +147,79 @@ function getEncodingFieldName(marksSpec, encodingId) {
   return encoding?.fieldCollection?.[0]?.fieldName ?? null;
 }
 
-function renderCard(cardData) {
+function renderCard(cardData, diagnostics, rowCount) {
   const image = document.getElementById('cardImage');
   const placeholder = document.getElementById('imagePlaceholder');
   const value = document.getElementById('cardValue');
 
   value.textContent = formatNumber(cardData.value);
+  image.onload = null;
+  image.onerror = null;
+  image.hidden = true;
+  placeholder.hidden = false;
 
   if (cardData.imageUrl) {
     image.onload = () => {
       image.hidden = false;
       placeholder.hidden = true;
+      setStatus({
+        state: 'ready',
+        label: 'Ready',
+        detail: `Rendering row 1 of ${rowCount}.`,
+        diagnostics,
+      });
     };
     image.onerror = () => {
       image.hidden = true;
       placeholder.hidden = false;
       image.removeAttribute('src');
+      setStatus({
+        state: 'warning',
+        label: 'Image fallback',
+        detail: 'The mapped image URL could not be loaded. The value is still rendered.',
+        diagnostics,
+      });
     };
     image.src = cardData.imageUrl;
+    setStatus({
+      state: 'loading',
+      label: 'Loading image',
+      detail: `Rendering row 1 of ${rowCount}.`,
+      diagnostics,
+    });
   } else {
     image.hidden = true;
     image.removeAttribute('src');
     placeholder.hidden = false;
+    setStatus({
+      state: 'warning',
+      label: 'Image fallback',
+      detail: `Rendering row 1 of ${rowCount}; the image URL value is blank.`,
+      diagnostics,
+    });
   }
 }
 
-function renderEmptyState(message) {
-  document.getElementById('cardValue').textContent = '--';
-  document.getElementById('cardImage').hidden = true;
-  document.getElementById('cardImage').removeAttribute('src');
-  document.getElementById('imagePlaceholder').hidden = false;
+function renderEmptyState(message, state = 'error', label = 'Error') {
+  renderEmptyCard();
   setError(message);
+  setStatus({
+    state,
+    label,
+    detail: message,
+  });
+}
+
+function renderEmptyCard() {
+  const image = document.getElementById('cardImage');
+  image.hidden = true;
+  image.removeAttribute('src');
+  document.getElementById('imagePlaceholder').hidden = false;
+  document.getElementById('cardValue').textContent = '--';
 }
 
 function cellRawValue(cell) {
-  return cell?.value ?? cell?.nativeValue ?? cell?.formattedValue ?? null;
+  return cell?.value ?? cell?.nativeValue ?? null;
 }
 
 function cellDisplayValue(cell) {
@@ -179,6 +258,39 @@ function formatNumber(value) {
   return new Intl.NumberFormat('en-US', {
     maximumFractionDigits: hasFraction ? 2 : 0,
   }).format(value);
+}
+
+function setStatus({ state = 'loading', label, detail, diagnostics = {} }) {
+  const panel = document.getElementById('statusPanel');
+  const labelEl = document.getElementById('statusLabel');
+  const detailEl = document.getElementById('statusDetail');
+
+  if (!panel || !labelEl || !detailEl) {
+    return;
+  }
+
+  panel.dataset.status = state;
+  labelEl.textContent = label;
+  detailEl.textContent = detail;
+
+  setMappingText('imageMapping', diagnostics.imageField, diagnostics.imageState);
+  setMappingText('valueMapping', diagnostics.valueField, diagnostics.valueState);
+}
+
+function setMappingText(elementId, fieldName, state) {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    return;
+  }
+
+  let text = fieldName || 'Not mapped';
+  if (state === 'missing-column') {
+    text = `Missing in data: ${fieldName}`;
+  }
+
+  element.textContent = text;
+  element.title = text;
+  element.classList.toggle('is-missing', state !== 'mapped');
 }
 
 function messageFromError(err) {
