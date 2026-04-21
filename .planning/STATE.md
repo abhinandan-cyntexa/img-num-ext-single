@@ -4,8 +4,8 @@
 
 - Phase: `1 / 2`
 - Active plan: `260421-001`
-- Status: Implementation in progress
-- Last activity: 2026-04-21 - Single-card architecture scaffolded from the image-plus-number grid reference
+- Status: Implemented, pending Tableau Desktop verification
+- Last activity: 2026-04-21 - Completed quick task 260421-001: single-card architecture scaffolded from the image-plus-number grid reference
 
 ## Decisions In Effect
 
@@ -20,6 +20,7 @@
 
 - Project planning artifacts created
 - Single-card architecture plan created
+- Static extension shell, renderer, mock test page, README, and local manifest implemented
 
 ## Open Verification Gates
 
@@ -32,10 +33,11 @@
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
+| 260421-001 | Single-card architecture for image-plus-number Tableau test extension | 2026-04-21 | ddc5980 | [260421-001-single-card-architecture](./quick/260421-001-single-card-architecture/) |
 
 ## Next Step
 
 Run the local server from this folder, then load `img-num-ext-single-local.trex` in Tableau Desktop.
 
 ---
-*Last updated: 2026-04-21 during Phase 1 implementation*
+*Last updated: 2026-04-21 after Phase 1 implementation*
