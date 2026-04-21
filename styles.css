@@ -1,0 +1,130 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #fff;
+  color: #2f2f2f;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.extension-root {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(18px, 5vw, 56px);
+}
+
+.single-card {
+  display: flex;
+  width: min(630px, calc(100vw - 40px));
+  min-height: 198px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 34px 44px 28px;
+  overflow: hidden;
+  border: 1px solid #f1f1f1;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 13px 28px rgba(31, 45, 61, 0.08);
+  text-align: center;
+}
+
+.image-frame {
+  display: grid;
+  width: 96px;
+  height: 76px;
+  place-items: center;
+}
+
+.card-image {
+  display: block;
+  max-width: 96px;
+  max-height: 76px;
+  object-fit: contain;
+}
+
+.image-placeholder {
+  display: grid;
+  width: 96px;
+  height: 76px;
+  place-items: center;
+  color: #111;
+}
+
+.image-placeholder[hidden] {
+  display: none;
+}
+
+.image-placeholder svg {
+  width: 88px;
+  height: 70px;
+  fill: currentColor;
+}
+
+.card-value {
+  width: 100%;
+  color: #5e6368;
+  font-size: clamp(19px, 2.1vw, 25px);
+  font-weight: 400;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  letter-spacing: 0;
+}
+
+.error {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  left: 14px;
+  display: none;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 9px 13px;
+  border: 1px solid #f1b8b8;
+  border-radius: 6px;
+  background: #fff6f6;
+  color: #9d2727;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.error:not(:empty) {
+  display: block;
+}
+
+@media (max-width: 520px) {
+  .extension-root {
+    padding: 16px;
+  }
+
+  .single-card {
+    width: 100%;
+    min-height: 176px;
+    gap: 18px;
+    padding: 28px 24px 24px;
+  }
+
+  .image-frame,
+  .image-placeholder {
+    width: 84px;
+    height: 66px;
+  }
+
+  .image-placeholder svg {
+    width: 78px;
+    height: 62px;
+  }
+}
