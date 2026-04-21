@@ -5,7 +5,7 @@
 - Phase: `1 / 2`
 - Active plan: `260421-001`
 - Status: Implemented, pending Tableau Desktop verification
-- Last activity: 2026-04-21 - Added UI status and mapping diagnostics; npm workflow intentionally skipped because Python server works
+- Last activity: 2026-04-21 - Removed optional browser mock test page and added minimal Excel dataset for Tableau Desktop testing
 
 ## Decisions In Effect
 
@@ -21,12 +21,14 @@
 
 - Project planning artifacts created
 - Single-card architecture plan created
-- Static extension shell, renderer, mock test page, README, and local manifest implemented
+- Static extension shell, renderer, README, and local manifest implemented
 - UI status indicator added for extension state, missing mappings, missing summary fields, no-data state, ready state, and image fallback
+- Minimal Excel test dataset added at `test-data/image-number-single-card.xls`
 
 ## Open Verification Gates
 
 - Load `img-num-ext-single-local.trex` in Tableau Desktop
+- Connect Tableau to `test-data/image-number-single-card.xls`
 - Confirm `Image URL` and `Value` encodings appear on the Marks card
 - Map a URL dimension and numeric measure
 - Confirm the card renders and updates after worksheet data changes
@@ -42,4 +44,4 @@
 Run the local server from this folder, then load `img-num-ext-single-local.trex` in Tableau Desktop.
 
 ---
-*Last updated: 2026-04-21 after Phase 1 implementation*
+*Last updated: 2026-04-21 after dataset and README update*

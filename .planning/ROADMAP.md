@@ -19,7 +19,7 @@ This project ships a minimal Tableau worksheet extension that renders one image-
 
 1. `index.html`, `styles.css`, and `chart.js` exist at the project root
 2. `img-num-ext-single-local.trex` points to `http://localhost:8081/index.html`
-3. Browser mock test renders one card without Tableau
+3. Minimal `.xls` dataset exists for Tableau Desktop testing
 4. The runtime listens for `SummaryDataChanged`
 5. The renderer uses only the first Tableau summary data row
 6. The UI shows current status and field mapping diagnostics
@@ -52,4 +52,4 @@ Plans:
 | 2. Tableau Desktop Verification | 0/1 | Pending human Tableau session |
 
 ---
-*Last updated: 2026-04-21 after single-card scaffold*
+*Last updated: 2026-04-21 after removing browser mock test page and adding Excel test data*

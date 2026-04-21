@@ -1,6 +1,6 @@
 # Image + Number Single Card Tableau Extension
 
-This repo contains a focused Tableau Viz Extension that renders exactly one image-plus-number KPI card from worksheet data. It is a smaller test harness for validating the card architecture before moving the same ideas into a more complex multi-card grid.
+This repo contains a focused Tableau Viz Extension that renders exactly one image-plus-number KPI card from worksheet data. It is a small validation project for testing the card architecture before moving the same behavior into a dynamic multi-card grid.
 
 ## Current Status
 
@@ -8,7 +8,8 @@ Last verified: 2026-04-21
 
 - Runtime JavaScript parses successfully with `node --check chart.js`
 - Local manifest XML validates with `xmllint --noout img-num-ext-single-local.trex`
-- Python static server returns `200 OK` for `index.html` and `test.html`
+- Python static server returns `200 OK` for `index.html`
+- Minimal Excel test dataset exists at `test-data/image-number-single-card.xls`
 - No `package.json` is required or included
 - Local manifest points to `http://localhost:8081/index.html`
 
@@ -30,9 +31,41 @@ Last verified: 2026-04-21
 | `index.html` | Main Tableau runtime page loaded by the `.trex` manifest |
 | `styles.css` | Card layout, image fallback, status panel, and responsive styles |
 | `chart.js` | Tableau initialization, mapping diagnostics, data parsing, rendering |
-| `test.html` | Browser-only mock Tableau test page |
 | `img-num-ext-single-local.trex` | Local Tableau Viz Extension manifest |
+| `test-data/image-number-single-card.xls` | Minimal Tableau test workbook |
 | `.planning/` | GSD planning and state artifacts |
+
+## Test Dataset
+
+The repo includes a real legacy Excel workbook:
+
+```text
+test-data/image-number-single-card.xls
+```
+
+Sheet:
+
+```text
+SingleCardData
+```
+
+Columns:
+
+| Column | Purpose |
+|---|---|
+| `Scenario` | Optional filter field for switching test cases |
+| `Image URL` | Field to map to the extension's `Image URL` encoding |
+| `Value` | Field to map to the extension's `Value` encoding |
+
+Rows:
+
+| Scenario | Expected Behavior |
+|---|---|
+| `Primary valid image` | Renders the embedded SVG data URL and `1,223,661` |
+| `Blank image fallback` | Renders the fallback icon and `875,000` |
+| `Broken image fallback` | Renders the fallback icon and `250,000` |
+
+The extension renders only the first summary row returned by Tableau. Use `Scenario` as a worksheet filter if you want to force a specific test row.
 
 ## Architecture
 
@@ -55,7 +88,7 @@ Runtime flow:
 
 - Tableau Desktop with local Viz Extension loading enabled
 - Python 3 available as `python3`
-- A worksheet with:
+- The included `.xls` workbook, or another worksheet with:
   - one field containing image URLs
   - one numeric measure
 
@@ -68,12 +101,6 @@ From this repo:
 ```bash
 cd /Users/abhinandansingh/Documents/cyntexa-dev/Tableau/Custom-Extensions/img-num-ext-single
 python3 -m http.server 8081
-```
-
-Open the browser mock test:
-
-```text
-http://localhost:8081/test.html
 ```
 
 The Tableau runtime URL is:
@@ -90,26 +117,6 @@ img-num-ext-single-local.trex
 
 If port `8081` is not available, either stop the process using that port or update the `.trex` `<source-location>` URL to the port you choose.
 
-## Browser Mock Test
-
-Use `test.html` before testing in Tableau. It provides a mocked Tableau API and sample data, so no Tableau session is required.
-
-Expected result:
-
-- One white card appears
-- Image/icon appears above the number
-- Number renders as `1,223,661`
-- Status panel shows `Ready`
-- Mapping panel shows:
-  - `Image URL`
-  - `Member Count`
-
-Browser test URL:
-
-```text
-http://localhost:8081/test.html
-```
-
 ## Tableau Desktop Test
 
 1. Start the local server:
@@ -120,31 +127,38 @@ http://localhost:8081/test.html
 
 2. Open Tableau Desktop.
 
-3. Open or create a worksheet with at least:
-
-   - an image URL field
-   - a numeric value field
-
-4. On the Marks card, open the mark type dropdown.
-
-5. Choose `Viz Extensions`.
-
-6. Choose `Add Extension`.
-
-7. Choose local extension loading and select:
+3. Connect to the included Excel workbook:
 
    ```text
-   /Users/abhinandansingh/Documents/cyntexa-dev/Tableau/Custom-Extensions/img-num-ext-single/img-num-ext-single-local.trex
+   /Users/abhinandansingh/Documents/cyntexa-dev/Tableau/Custom-Extensions/img-num-ext-single/test-data/image-number-single-card.xls
    ```
 
-8. Map fields:
+4. Open the `SingleCardData` sheet.
 
-   - Drag the image URL field to `Image URL`
-   - Drag the numeric measure to `Value`
+5. Create a worksheet.
 
-9. Confirm the extension renders one card.
+6. Add the local Viz Extension:
 
-10. Change a worksheet filter or mapped data value and confirm the card re-renders.
+   - On the Marks card, open the mark type dropdown
+   - Choose `Viz Extensions`
+   - Choose `Add Extension`
+   - Choose local extension loading
+   - Select:
+
+     ```text
+     /Users/abhinandansingh/Documents/cyntexa-dev/Tableau/Custom-Extensions/img-num-ext-single/img-num-ext-single-local.trex
+     ```
+
+7. Map fields:
+
+   - Drag `Image URL` to the extension's `Image URL` encoding
+   - Drag `Value` to the extension's `Value` encoding
+
+8. Confirm the extension renders one card.
+
+9. Optional: add `Scenario` as a filter and switch between rows to test valid, blank, and broken image behavior.
+
+10. Change the filter or mapped data and confirm the card re-renders.
 
 ## Status Panel
 
@@ -169,18 +183,18 @@ Mapping rows:
 
 ## Manual Test Checklist
 
-Use this checklist before moving logic back into the multi-card grid.
-
 - [ ] `python3 -m http.server 8081` starts without errors
-- [ ] `http://localhost:8081/test.html` renders the mock card
+- [ ] `http://localhost:8081/index.html` is reachable
+- [ ] Tableau connects to `test-data/image-number-single-card.xls`
 - [ ] `img-num-ext-single-local.trex` loads in Tableau Desktop
 - [ ] Marks card shows `Image URL` and `Value`
 - [ ] Missing `Image URL` mapping shows `Needs mapping`
 - [ ] Missing `Value` mapping shows `Needs mapping`
 - [ ] Valid mappings render one card
 - [ ] Number uses comma formatting
-- [ ] Blank image URL shows fallback icon
-- [ ] Broken image URL shows fallback icon and `Image fallback`
+- [ ] `Primary valid image` shows the icon and `1,223,661`
+- [ ] `Blank image fallback` shows fallback icon and `875,000`
+- [ ] `Broken image fallback` shows fallback icon and `250,000`
 - [ ] Filter or summary data changes update the rendered card
 
 ## Verification Commands
@@ -190,15 +204,16 @@ Run these from the repo root:
 ```bash
 node --check chart.js
 xmllint --noout img-num-ext-single-local.trex
+file test-data/image-number-single-card.xls
 curl -I http://localhost:8081/index.html
-curl -I http://localhost:8081/test.html
 ```
 
 Expected result:
 
 - `node --check` prints no syntax errors
 - `xmllint` prints no XML errors
-- both `curl` commands return `HTTP/1.0 200 OK` or another `200 OK` response
+- `file` reports `CDFV2 Microsoft Excel`
+- `curl` returns `HTTP/1.0 200 OK` or another `200 OK` response
 
 ## Troubleshooting
 
@@ -218,6 +233,12 @@ lsof -nP -iTCP:8081
 ```
 
 Then either stop that process or run the server on another port and update the manifest.
+
+### Tableau cannot open the dataset
+
+- Confirm the file exists at `test-data/image-number-single-card.xls`.
+- Confirm `file test-data/image-number-single-card.xls` reports `CDFV2 Microsoft Excel`.
+- Reconnect the workbook in Tableau if it was open before the file was created.
 
 ### Status shows Needs mapping
 
@@ -252,6 +273,7 @@ The `Value` field must be numeric or a numeric string. Values like `1,223,661` a
 - Does not include card labels or titles
 - Does not abbreviate numbers as `1.2M`
 - Does not require npm or a build step
+- Does not include a browser mock page
 - Uses plain HTML, CSS, and JavaScript only
 
 ## Related GSD Artifacts
