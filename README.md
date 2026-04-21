@@ -7,7 +7,7 @@ This repo contains a focused Tableau Viz Extension that renders exactly one imag
 Last verified: 2026-04-22
 
 - Confirmed working in Tableau Online with `img-num-ext-single-https-local.trex`
-- Status panel renders inside Tableau and reports mapping/image state
+- Status panel renders for loading, warning, and error states, then hides after the extension reaches `Ready`
 - Broken-image fallback renders the neutral placeholder without the browser's broken-image square
 - Runtime JavaScript parses successfully with `node --check chart.js`
 - Local manifest XML files validate with `xmllint --noout`
@@ -28,7 +28,8 @@ Last verified: 2026-04-22
 - Renders one image above one comma-formatted number
 - Shows a fallback icon when the image URL is blank or broken
 - Re-renders when Tableau fires `SummaryDataChanged`
-- Shows a visible status panel for current state and field mappings
+- Shows a visible status panel for non-ready state and field-mapping diagnostics
+- Hides the status panel after a successful ready render so the final view only shows the card
 
 ## Project Files
 
@@ -119,13 +120,19 @@ Hosted extension URL:
 https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html
 ```
 
+The GitHub Pages `.trex` uses a versioned URL to avoid Tableau/browser cache during updates:
+
+```text
+https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html?v=0.5.0
+```
+
 Use this manifest when Tableau needs a hosted HTTPS URL instead of local `localhost` testing:
 
 ```text
 img-num-ext-single-github-pages.trex
 ```
 
-The GitHub Pages manifest is useful for Tableau Online because it avoids localhost certificate prompts and browser mixed-content blocking.
+The GitHub Pages manifest is useful for Tableau Online because it avoids localhost certificate prompts and browser mixed-content blocking. GitHub Pages publishes automatically after pushes to `main`; the hosted files can still take a few minutes to refresh because GitHub Pages sends short cache headers.
 
 ## Run Locally For Tableau Desktop
 
@@ -302,7 +309,7 @@ If the debug manifest does not show `Debug page loaded`, Tableau Online is still
 
 ## Status Panel
 
-The top-left panel shows the extension state and mapping diagnostics.
+The top-left panel shows the extension state and mapping diagnostics until the extension reaches `Ready`. Once the card renders successfully, the panel is hidden.
 
 | Status | Meaning |
 |---|---|
@@ -311,7 +318,7 @@ The top-left panel shows the extension state and mapping diagnostics.
 | `Needs mapping` | One or more required encodings are not mapped or missing from summary data |
 | `No data` | Required mappings exist, but Tableau returned zero rows |
 | `Loading image` | Value is rendered and the image URL is being loaded |
-| `Ready` | Image and value rendered successfully |
+| `Ready` | Image and value rendered successfully; status panel is hidden |
 | `Image fallback` | Value rendered, but image URL was blank or failed to load; the neutral placeholder is expected |
 | `Error` | Unexpected runtime or Tableau API error |
 
@@ -337,6 +344,7 @@ Mapping rows:
 - [ ] Missing `Image URL` mapping shows `Needs mapping`
 - [ ] Missing `Value` mapping shows `Needs mapping`
 - [ ] Valid mappings render one card
+- [ ] Status panel hides after the card reaches `Ready`
 - [ ] Number uses comma formatting
 - [ ] `Primary valid image` shows the icon and `1,223,661`
 - [ ] `Blank image fallback` shows fallback icon and `875,000`
@@ -360,7 +368,7 @@ curl -I http://localhost:8081/index.html
 curl -k -I https://localhost:8443/vendor/tableau.extensions.1.latest.js
 curl -k -I https://localhost:8443/index.html
 curl -k -I https://localhost:8443/debug.html
-curl -I https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html
+curl -I "https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html?v=0.5.0"
 ```
 
 Expected result:
@@ -404,8 +412,8 @@ The `prod.telemetry.tableausoftware.com` CORS errors in the browser console are 
 
 - Confirm GitHub Pages is enabled for the repository.
 - Confirm the Pages source is the `main` branch root.
-- Open `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html` in the same browser.
-- Run `curl -I https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html` and confirm `200 OK`.
+- Open `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html?v=0.5.0` in the same browser.
+- Run `curl -I "https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html?v=0.5.0"` and confirm `200 OK`.
 - Confirm Tableau is using `img-num-ext-single-github-pages.trex`, not a local manifest.
 
 ### Tableau Online says Could not connect to the server

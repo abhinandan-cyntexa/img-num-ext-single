@@ -393,6 +393,7 @@ function setStatus({ state = 'loading', label, detail, diagnostics = {} }) {
   }
 
   panel.dataset.status = state;
+  panel.hidden = state === 'ready';
   labelEl.textContent = label;
   detailEl.textContent = detail;
 

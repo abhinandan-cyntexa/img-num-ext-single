@@ -22,11 +22,12 @@ The extension must reliably show the image URL and numeric value from the first 
 - [x] Missing or broken image URLs show a neutral placeholder
 - [x] Failed image elements do not show the browser's broken-image square
 - [x] UI status indicator shows current extension state and mapping diagnostics
+- [x] UI status indicator hides after the extension reaches `Ready`
 - [x] Summary data changes trigger a re-render
 - [x] HTTP `.trex` manifest points to `http://localhost:8081/index.html` for Tableau Desktop
 - [x] HTTPS `.trex` manifest points to `https://localhost:8443/index.html` for Tableau Online
 - [x] HTTPS diagnostic `.trex` verifies source loading and Tableau SDK initialization before testing card code
-- [x] GitHub Pages `.trex` points to `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html` for hosted HTTPS testing
+- [x] GitHub Pages `.trex` points to `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html?v=0.5.0` for hosted HTTPS testing
 
 ### Out of Scope
 
@@ -51,7 +52,7 @@ The extension must reliably show the image URL and numeric value from the first 
 - Tableau Extensions API loaded locally from `vendor/tableau.extensions.1.latest.js`
 - Tableau Desktop local development uses `python3 -m http.server 8081`
 - Tableau Online local development uses `python3 serve_https.py` on `https://localhost:8443`
-- Hosted Tableau Online testing uses GitHub Pages at `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html`
+- Hosted Tableau Online testing uses GitHub Pages at `https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html?v=0.5.0`
 - No `package.json` or `npm start` workflow is required for this project
 - Tableau light-theme styling: white surface, subtle border/shadow, neutral typography
 
@@ -67,4 +68,4 @@ The extension must reliably show the image URL and numeric value from the first 
 | Add a GitHub Pages manifest | Gives Tableau Online a stable hosted HTTPS URL without localhost certificate prompts | Locked |
 
 ---
-*Last updated: 2026-04-22 after GitHub Pages manifest setup*
+*Last updated: 2026-04-22 after ready-state status panel cleanup*

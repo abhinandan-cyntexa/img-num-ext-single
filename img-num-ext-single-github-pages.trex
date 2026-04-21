@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest manifest-version="0.1" xmlns="http://www.tableau.com/xml/extension_manifest">
-  <worksheet-extension id="com.cyntexa.imgnumsingle.github.pages" extension-version="0.4.0">
+  <worksheet-extension id="com.cyntexa.imgnumsingle.github.pages" extension-version="0.5.0">
     <default-locale>en_US</default-locale>
     <name resource-id="name"/>
     <description>Single image and number KPI card served from GitHub Pages</description>
     <author name="Cyntexa" email="support@cyntexa.com" organization="Cyntexa" website="https://cyntexa.com"/>
     <min-api-version>1.11</min-api-version>
     <source-location>
-      <url>https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html</url>
+      <url>https://abhinandan-cyntexa.github.io/img-num-ext-single/index.html?v=0.5.0</url>
     </source-location>
     <icon/>
     <encoding id="image">
@@ -27,4 +27,3 @@
     <resource id="value_label"><text locale="en_US">Value</text></resource>
   </resources>
 </manifest>
-
