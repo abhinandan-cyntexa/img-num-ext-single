@@ -12,17 +12,20 @@ The extension must reliably show the image URL and numeric value from the first 
 
 ### Active
 
-- [ ] Extension initializes through Tableau Extensions API
-- [ ] Worksheet visual specification is read to resolve `Image URL` and `Value` encodings
-- [ ] Worksheet summary data is loaded through `getSummaryDataReaderAsync()`
-- [ ] Only the first valid row is rendered as one card
-- [ ] Image source comes from a Tableau dimension field mapped to the image encoding
-- [ ] Number comes from a Tableau measure field mapped to the value encoding
-- [ ] Numbers are formatted with comma separators
-- [ ] Missing or broken image URLs show a neutral placeholder
-- [ ] UI status indicator shows current extension state and mapping diagnostics
-- [ ] Summary data changes trigger a re-render
-- [ ] Local `.trex` manifest points to `http://localhost:8081/index.html`
+- [x] Extension initializes through Tableau Extensions API
+- [x] Worksheet visual specification is read to resolve `Image URL` and `Value` encodings
+- [x] Worksheet summary data is loaded through `getSummaryDataReaderAsync()`
+- [x] Only the first valid row is rendered as one card
+- [x] Image source comes from a Tableau dimension field mapped to the image encoding
+- [x] Number comes from a Tableau measure field mapped to the value encoding
+- [x] Numbers are formatted with comma separators
+- [x] Missing or broken image URLs show a neutral placeholder
+- [x] Failed image elements do not show the browser's broken-image square
+- [x] UI status indicator shows current extension state and mapping diagnostics
+- [x] Summary data changes trigger a re-render
+- [x] HTTP `.trex` manifest points to `http://localhost:8081/index.html` for Tableau Desktop
+- [x] HTTPS `.trex` manifest points to `https://localhost:8443/index.html` for Tableau Online
+- [x] HTTPS diagnostic `.trex` verifies source loading and Tableau SDK initialization before testing card code
 
 ### Out of Scope
 
@@ -32,6 +35,7 @@ The extension must reliably show the image URL and numeric value from the first 
 - Runtime settings UI
 - External chart libraries
 - Server-side code
+- npm/package-based local server workflow
 
 ## Context
 
@@ -44,7 +48,8 @@ The extension must reliably show the image URL and numeric value from the first 
 
 - Plain HTML/CSS/JS only
 - Tableau Extensions API loaded locally from `vendor/tableau.extensions.1.latest.js`
-- Local development uses `python3 -m http.server 8081`
+- Tableau Desktop local development uses `python3 -m http.server 8081`
+- Tableau Online local development uses `python3 serve_https.py` on `https://localhost:8443`
 - No `package.json` or `npm start` workflow is required for this project
 - Tableau light-theme styling: white surface, subtle border/shadow, neutral typography
 
@@ -55,7 +60,8 @@ The extension must reliably show the image URL and numeric value from the first 
 | Render only the first data row | Isolates card rendering before multi-card grid complexity | Locked |
 | Keep two encodings only | Matches the minimum image-plus-number test need | Locked |
 | Use DOM/CSS rendering | Avoids dependencies and keeps Tableau debugging simple | Locked |
-| Use a local-only manifest first | The immediate target is Tableau Desktop testing | Locked |
+| Keep HTTP and HTTPS manifests | Tableau Desktop can use HTTP; Tableau Online requires HTTPS to avoid mixed-content blocking | Locked |
+| Keep a diagnostic HTTPS manifest | Separates source/SDK loading failures from `chart.js` rendering bugs | Locked |
 
 ---
-*Last updated: 2026-04-21 after single-card scaffold*
+*Last updated: 2026-04-22 after Tableau Online verification*

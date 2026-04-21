@@ -6,6 +6,9 @@ This repo contains a focused Tableau Viz Extension that renders exactly one imag
 
 Last verified: 2026-04-22
 
+- Confirmed working in Tableau Online with `img-num-ext-single-https-local.trex`
+- Status panel renders inside Tableau and reports mapping/image state
+- Broken-image fallback renders the neutral placeholder without the browser's broken-image square
 - Runtime JavaScript parses successfully with `node --check chart.js`
 - Local manifest XML files validate with `xmllint --noout`
 - Python HTTP and HTTPS static servers return `200 OK` for `index.html`
@@ -40,6 +43,7 @@ Last verified: 2026-04-22
 | `serve_https.py` | Python HTTPS static server with no-cache headers |
 | `test-data/image-number-single-card.xls` | Minimal Tableau test workbook |
 | `vendor/tableau.extensions.1.latest.js` | Local Tableau Extensions API SDK |
+| `.gitignore` | Ignores generated Python cache and local certificate files |
 | `.planning/` | GSD planning and state artifacts |
 
 ## Test Dataset
@@ -95,6 +99,7 @@ Runtime flow:
 ## Prerequisites
 
 - Tableau Desktop with local Viz Extension loading enabled
+- Tableau Online, if testing in the browser-hosted authoring experience
 - Python 3 available as `python3`
 - The included `.xls` workbook, or another worksheet with:
   - one field containing image URLs
@@ -157,25 +162,80 @@ Start the HTTPS server:
 python3 serve_https.py
 ```
 
-Open this URL directly in the same browser once:
+Open the debug URL directly in the same browser once:
 
 ```text
-https://localhost:8443/index.html
+https://localhost:8443/debug.html
 ```
 
-If the browser shows a certificate warning, accept it before loading the extension in Tableau Online. Then add this manifest in Tableau Online:
+If the browser shows a certificate warning, accept it before loading the extension in Tableau Online.
 
-```text
-img-num-ext-single-https-local.trex
-```
-
-For source-load debugging, add this static diagnostic manifest first:
+Add this diagnostic manifest in Tableau Online first:
 
 ```text
 img-num-ext-single-debug-https-local.trex
 ```
 
+Expected debug result inside Tableau:
+
+```text
+Debug page loaded
+Tableau initializeAsync completed.
+```
+
+If the debug manifest works, add the real extension manifest:
+
+```text
+img-num-ext-single-https-local.trex
+```
+
 If the debug manifest does not show `Debug page loaded`, Tableau Online is still not reaching the local HTTPS server. If it shows `Debug page loaded` but says the Tableau SDK failed, the HTTPS source is reachable and the failure is in the Tableau handshake. Do not debug `chart.js` until this diagnostic page loads and initializes.
+
+## Tableau Online Test
+
+1. Start the HTTPS server from the repo root:
+
+   ```bash
+   python3 serve_https.py
+   ```
+
+2. Open this in the same browser and accept the certificate warning if prompted:
+
+   ```text
+   https://localhost:8443/debug.html
+   ```
+
+3. In Tableau Online, add:
+
+   ```text
+   img-num-ext-single-debug-https-local.trex
+   ```
+
+4. Confirm the debug extension shows:
+
+   ```text
+   Debug page loaded
+   Tableau initializeAsync completed.
+   ```
+
+5. Replace the debug extension with:
+
+   ```text
+   img-num-ext-single-https-local.trex
+   ```
+
+6. Map fields:
+
+   - Drag `Image URL` to the extension's `Image URL` encoding
+   - Drag `Value` or `SUM(Value)` to the extension's `Value` encoding
+
+7. Confirm the status panel appears at the top of the extension.
+
+8. Confirm the card renders:
+
+   - valid image URL: image above the number
+   - blank or broken image URL: neutral fallback icon above the number
+   - value: comma-formatted number, such as `250,000`
 
 ## Tableau Desktop Test
 
@@ -232,7 +292,7 @@ The top-left panel shows the extension state and mapping diagnostics.
 | `No data` | Required mappings exist, but Tableau returned zero rows |
 | `Loading image` | Value is rendered and the image URL is being loaded |
 | `Ready` | Image and value rendered successfully |
-| `Image fallback` | Value rendered, but image URL was blank or failed to load |
+| `Image fallback` | Value rendered, but image URL was blank or failed to load; the neutral placeholder is expected |
 | `Error` | Unexpected runtime or Tableau API error |
 
 Mapping rows:
@@ -246,7 +306,7 @@ Mapping rows:
 - [ ] `python3 -m http.server 8081` starts without errors
 - [ ] `http://localhost:8081/index.html` is reachable
 - [ ] For Tableau Online, `python3 serve_https.py` starts without errors
-- [ ] For Tableau Online, `https://localhost:8443/index.html` is reachable in the same browser
+- [ ] For Tableau Online, `https://localhost:8443/debug.html` is reachable in the same browser
 - [ ] For Tableau Online, `img-num-ext-single-debug-https-local.trex` shows `Debug page loaded`
 - [ ] For Tableau Online, the debug page shows `Tableau initializeAsync completed`
 - [ ] Tableau connects to `test-data/image-number-single-card.xls`
@@ -260,6 +320,7 @@ Mapping rows:
 - [ ] `Primary valid image` shows the icon and `1,223,661`
 - [ ] `Blank image fallback` shows fallback icon and `875,000`
 - [ ] `Broken image fallback` shows fallback icon and `250,000`
+- [ ] Fallback state does not show a small broken-image square above the icon
 - [ ] Filter or summary data changes update the rendered card
 
 ## Verification Commands
@@ -316,6 +377,16 @@ img-num-ext-single-https-local.trex
 
 The `prod.telemetry.tableausoftware.com` CORS errors in the browser console are Tableau telemetry calls and are not the reason this extension is blank.
 
+### Tableau Online says Could not connect to the server
+
+This means the browser cannot reach `https://localhost:8443/...`.
+
+- Confirm `python3 serve_https.py` is still running.
+- Open `https://localhost:8443/debug.html` directly in the same browser.
+- Accept the local certificate warning if the browser shows one.
+- Run `curl -k -I https://localhost:8443/debug.html` and confirm `200 OK`.
+- Confirm the Tableau Online manifest is `img-num-ext-single-https-local.trex` or `img-num-ext-single-debug-https-local.trex`, not the HTTP desktop manifest.
+
 ### Tableau says the extension cannot load
 
 - Confirm the Python server is running from this repo.
@@ -357,6 +428,8 @@ The number is valid, but the image did not render. Check that the image URL:
 - is reachable from the Tableau iframe
 - points directly to an image file or image response
 
+The fallback icon is expected for blank or broken image URLs. A small square above the fallback icon is not expected; `styles.css` includes a global `[hidden]` rule to keep failed image elements out of layout.
+
 ### Status shows No data
 
 The fields are mapped, but Tableau returned no rows. Check worksheet filters and confirm the mapped fields produce at least one summary row.
@@ -364,6 +437,20 @@ The fields are mapped, but Tableau returned no rows. Check worksheet filters and
 ### Number does not render
 
 The `Value` field must be numeric or a numeric string. Values like `1,223,661` are accepted; non-numeric strings are rejected.
+
+## Local Runtime Artifacts
+
+These files and folders are local-only and ignored by git:
+
+- `certs/` - local HTTPS certificate and key for Tableau Online testing
+- `__pycache__/` - Python bytecode cache from running `serve_https.py`
+
+The repo intentionally does not include:
+
+- `package.json`
+- `npm start`
+- `test.html`
+- committed browser screenshots
 
 ## Known Scope Limits
 
