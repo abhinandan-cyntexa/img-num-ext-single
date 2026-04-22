@@ -37,6 +37,10 @@ function bootstrap() {
       tableau.TableauEventType.SummaryDataChanged,
       () => render(activeWorksheet)
     );
+    activeWorksheet.addEventListener(
+      tableau.TableauEventType.WorksheetFormattingChanged,
+      () => render(activeWorksheet)
+    );
     render(activeWorksheet);
   }).catch(err => {
     renderEmptyState(messageFromError(err), 'error', 'Initialization failed');
@@ -89,7 +93,7 @@ async function render(worksheet) {
 }
 
 async function fetchSummaryData(worksheet) {
-  const options = { ignoreSelection: true };
+  const options = { ignoreSelection: true, applyWorksheetFormatting: true };
   if (tableau.IncludeDataValuesOption?.AllValues) {
     options.includeDataValuesOption = tableau.IncludeDataValuesOption.AllValues;
   }
@@ -162,9 +166,12 @@ function parseSingleCard(dataTable, diagnostics) {
     throw new Error(`Value field "${diagnostics.valueField}" did not contain a numeric value.`);
   }
 
+  const formattedValue = String(valueCell?.formattedValue ?? '').trim() || formatNumber(numericValue);
+
   return {
     imageUrl: normalizeImageUrl(cellStringValue(imageCell)),
     value: numericValue,
+    displayValue: formattedValue,
   };
 }
 
@@ -259,7 +266,7 @@ function renderCard(cardData, diagnostics, rowCount) {
   const placeholder = document.getElementById('imagePlaceholder');
   const value = document.getElementById('cardValue');
 
-  value.textContent = formatNumber(cardData.value);
+  value.textContent = cardData.displayValue;
   image.onload = null;
   image.onerror = null;
   image.hidden = true;
