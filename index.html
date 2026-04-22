@@ -4,10 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Image + Number Single Card</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=0.7.0">
+  <link rel="stylesheet" href="styles.css?v=0.6.0">
   <script src="vendor/tableau.extensions.1.latest.js"></script>
 </head>
 <body>
@@ -33,10 +30,11 @@
       <div class="image-frame" id="imageFrame">
         <img id="cardImage" class="card-image" alt="" hidden>
         <div id="imagePlaceholder" class="image-placeholder" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
+          <svg viewBox="0 0 96 96" role="img" focusable="false">
+            <circle cx="34" cy="34" r="12"></circle>
+            <circle cx="62" cy="34" r="12"></circle>
+            <circle cx="48" cy="30" r="14"></circle>
+            <path d="M17 68c3-15 14-23 31-23s28 8 31 23c-8 7-18 11-31 11s-23-4-31-11z"></path>
           </svg>
         </div>
       </div>
@@ -44,6 +42,6 @@
     </section>
     <div id="error" class="error" role="status"></div>
   </main>
-  <script src="chart.js?v=0.7.0"></script>
+  <script src="chart.js?v=0.6.0"></script>
 </body>
 </html>
