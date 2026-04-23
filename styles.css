@@ -165,15 +165,8 @@ body {
   pointer-events: none;
 }
 
-/* Subtle graph-paper grid background */
 .card-grid {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, rgba(15, 20, 33, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 20, 33, 0.035) 1px, transparent 1px);
-  background-size: 20px 20px;
+  display: none;
 }
 
 /* Content sits above rail + grid */
