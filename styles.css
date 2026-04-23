@@ -1,3 +1,9 @@
+/* ───────────────────────────────────────────────────────────────
+   V6 — Rail + grid texture
+   Single-card Tableau extension.
+   Light theme. Geist for UI, Roboto Condensed for the number.
+   ─────────────────────────────────────────────────────────────── */
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -16,21 +22,21 @@ body {
 body {
   overflow: hidden;
   background: #f5f6f8;
-  color: #1a1f36;
-  font-family: "Benton Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: #0f1421;
+  font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .extension-root {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px;
 }
 
-/* ── Status panel ─────────────────────────────────────────── */
+/* ── Status panel (hidden when ready; appears on warning/error) ─── */
 
 .status-panel {
   width: 100%;
@@ -44,23 +50,9 @@ body {
   line-height: 1.4;
 }
 
-.status-panel[data-status="loading"] {
-  border-left-color: #1f77b4;
-}
-
-.status-panel[data-status="ready"] {
-  border-left-color: #2ca02c;
-}
-
-.status-panel[data-status="warning"] {
-  border-left-color: #e07b00;
-  background: #fffbf5;
-}
-
-.status-panel[data-status="error"] {
-  border-left-color: #d62728;
-  background: #fff8f8;
-}
+.status-panel[data-status="loading"] { border-left-color: #1f77b4; }
+.status-panel[data-status="warning"] { border-left-color: #e07b00; background: #fffbf5; }
+.status-panel[data-status="error"]   { border-left-color: #d62728; background: #fff8f8; }
 
 .status-heading {
   display: flex;
@@ -84,15 +76,13 @@ body {
   background: #1f77b4;
   animation: dot-pulse 1.4s ease-in-out infinite;
 }
+.status-panel[data-status="warning"] .status-dot { background: #e07b00; }
+.status-panel[data-status="error"]   .status-dot { background: #d62728; }
 
 @keyframes dot-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.35; transform: scale(0.75); }
+  50%      { opacity: 0.35; transform: scale(0.75); }
 }
-
-.status-panel[data-status="ready"]   .status-dot { background: #2ca02c; }
-.status-panel[data-status="warning"] .status-dot { background: #e07b00; }
-.status-panel[data-status="error"]   .status-dot { background: #d62728; }
 
 .status-detail {
   margin-top: 3px;
@@ -136,53 +126,96 @@ body {
   color: #c05800;
 }
 
-/* ── KPI card ─────────────────────────────────────────────── */
+/* ── KPI card — V6 Rail + grid ─────────────────────────────────── */
 
 .single-card {
+  position: relative;
+  flex: 1;
   display: flex;
-  width: min(540px, calc(100vw - 32px));
-  align-self: center;
+  width: 100%;
+  min-height: 120px;
+  overflow: hidden;
+  border: 1px solid #eceef1;
+  border-radius: 14px;
+  background: #fafbfc;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 8px 24px -12px rgba(16, 24, 40, 0.08);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.single-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(16, 24, 40, 0.06),
+    0 16px 36px -12px rgba(16, 24, 40, 0.16);
+}
+
+/* Blue accent rail down the left edge */
+.card-rail {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #0089CD;
+  pointer-events: none;
+}
+
+/* Subtle graph-paper grid background */
+.card-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(15, 20, 33, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 20, 33, 0.035) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Content sits above rail + grid */
+.card-inner {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 22px;
-  margin: auto 0;
-  padding: 44px 52px 36px;
-  overflow: hidden;
-  border: 1px solid #e8eaed;
-  border-radius: 10px;
-  background: #ffffff;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 6px 20px rgba(0, 0, 0, 0.05);
+  gap: 16px;
+  padding: 40px 22px;
   text-align: center;
 }
 
-/* ── Image area ───────────────────────────────────────────── */
+/* ── Image area ─────────────────────────────────────────────────── */
 
 .image-frame {
   display: grid;
-  width: 88px;
-  height: 88px;
+  width: 76px;
+  height: 76px;
   place-items: center;
+  border-radius: 16px;
+  background: #D7F2FF;
+  color: #0089CD;
 }
 
 .card-image {
   display: block;
-  max-width: 88px;
-  max-height: 88px;
+  max-width: 60px;
+  max-height: 60px;
   object-fit: contain;
   border-radius: 6px;
 }
 
 .image-placeholder {
   display: grid;
-  width: 80px;
-  height: 80px;
+  width: 44px;
+  height: 44px;
   place-items: center;
-  background: #edf0f4;
-  border-radius: 50%;
-  color: #b0b7c3;
+  color: #0089CD;
 }
 
 .image-placeholder[hidden] {
@@ -192,22 +225,25 @@ body {
 .image-placeholder svg {
   width: 40px;
   height: 40px;
-  fill: currentColor;
 }
 
-/* ── KPI number ───────────────────────────────────────────── */
+/* ── KPI number ─────────────────────────────────────────────────── */
 
 .card-value {
   width: 100%;
-  color: #1a1f36;
-  font-size: clamp(32px, 5.5vw, 48px);
-  font-weight: 700;
+  color: #424242;
+  font-family: "Roboto Condensed", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(18px, 2.4vw, 24px);
+  font-weight: 600;
   line-height: 1.1;
-  letter-spacing: -0.025em;
-  overflow-wrap: anywhere;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* ── Error toast ──────────────────────────────────────────── */
+/* ── Error toast ────────────────────────────────────────────────── */
 
 .error {
   position: fixed;
@@ -231,36 +267,61 @@ body {
   display: block;
 }
 
-/* ── Responsive ───────────────────────────────────────────── */
+/* ── Responsive (small card sizes in Tableau) ───────────────────── */
 
-@media (max-width: 520px) {
-  .extension-root {
-    padding: 10px;
-  }
-
-  .single-card {
-    width: 100%;
-    gap: 18px;
-    padding: 32px 24px 28px;
+@media (max-width: 320px) {
+  .card-inner {
+    gap: 12px;
+    padding: 18px 16px;
   }
 
   .image-frame {
-    width: 72px;
-    height: 72px;
-  }
-
-  .image-placeholder {
-    width: 68px;
-    height: 68px;
-  }
-
-  .image-placeholder svg {
-    width: 34px;
-    height: 34px;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
   }
 
   .card-image {
-    max-width: 72px;
-    max-height: 72px;
+    max-width: 46px;
+    max-height: 46px;
+  }
+
+  .image-placeholder {
+    width: 36px;
+    height: 36px;
+  }
+
+  .image-placeholder svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .card-value {
+    font-size: clamp(16px, 5.5vw, 22px);
+  }
+}
+
+@media (max-height: 180px) {
+  .card-inner {
+    flex-direction: row;
+    gap: 18px;
+    padding: 14px 20px;
+    justify-content: center;
+  }
+
+  .image-frame {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+  }
+
+  .card-image {
+    max-width: 40px;
+    max-height: 40px;
+  }
+
+  .image-placeholder svg {
+    width: 28px;
+    height: 28px;
   }
 }
